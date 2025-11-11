@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+# gpu-switch — Manage Intel/NVIDIA GPU mode with optional auto-switch
+# Author: Asim Farooq
+# License: MIT
+
+SERVICE_PID="/tmp/gpu-auto-switch.pid"
+LOG_FILE="/var/log/gpu-switch.log"
+YELLOW='\033[1;33m'; GREEN='\033[1;32m'; RED='\033[1;31m'; NC='\033[0m'
+
+usage() {
+cat << EOF
+${YELLOW}Usage:${NC}
+  sudo gpu-switch [option]
+
+${YELLOW}Options:${NC}
+  --gpu-integrated     Switch to Intel GPU
+  --gpu-dedicated      Switch to NVIDIA GPU
+  --gpu-list           Show current and available GPUs
+  --gpu-auto           Start automatic switching daemon (AC <-> Battery)
+  --gpu-stop           Stop auto-switch daemon
+  --status             Show GPU and daemon status
+  --help               Show this help message
+EOF
+}
+
+require_prime() {
+  if ! command -v prime-select >/dev/null 2>&1; then
+    echo "[ERROR] prime-select not found. Install with: sudo apt install nvidia-prime"
+    exit 1
+  fi
+}
+
+gpu_integrated() {
+  require_prime
+  echo "[INFO] Switching to Intel GPU..."
+  sudo prime-select intel && echo -e "${GREEN}Done. Reboot required.${NC}"
+}
+
+gpu_dedicated() {
+  require_prime
+  echo "[INFO] Switching to NVIDIA GPU..."
+  sudo prime-select nvidia && echo -e "${GREEN}Done. Reboot required.${NC}"
+}
+
+gpu_list() {
+  require_prime
+  echo -e "${YELLOW}Available GPUs:${NC}"
+  echo " - Intel (integrated)"
+  echo " - NVIDIA (dedicated)"
+  echo -n "Current: "; prime-select query
+}
+
+gpu_status() {
+  require_prime
+  mode=$(prime-select query)
+  echo "Current GPU: ${mode}"
+  if [ -f "$SERVICE_PID" ]; then
+    echo "Auto-switch: ACTIVE (PID $(cat $SERVICE_PID))"
+  else
+    echo "Auto-switch: INACTIVE"
+  fi
+}
+
+gpu_auto() {
+  require_prime
+  if [ -f "$SERVICE_PID" ]; then
+    echo "[WARN] Auto-switch already running (PID $(cat $SERVICE_PID))."
+    exit 0
+  fi
+
+  echo "[INFO] Starting GPU auto-switch daemon..."
+  (
+    echo $$ > "$SERVICE_PID"
+    echo "[GPU-AUTO] Started $(date)" >> "$LOG_FILE"
+    prev_state=""
+    while true; do
+      state=$(cat /sys/class/power_supply/AC*/online 2>/dev/null | head -n 1)
+      if [ "$state" = "1" ] && [ "$prev_state" != "AC" ]; then
+        echo "[GPU-AUTO] AC detected → NVIDIA" | tee -a "$LOG_FILE"
+        sudo prime-select nvidia >/dev/null 2>&1
+        prev_state="AC"
+      elif [ "$state" = "0" ] && [ "$prev_state" != "BAT" ]; then
+        echo "[GPU-AUTO] Battery detected → Intel" | tee -a "$LOG_FILE"
+        sudo prime-select intel >/dev/null 2>&1
+        prev_state="BAT"
+      fi
+      sleep 5
+    done
+  ) &
+  echo -e "${GREEN}GPU auto-switch running (PID $(cat $SERVICE_PID)).${NC}"
+}
+
+gpu_stop() {
+  if [ -f "$SERVICE_PID" ]; then
+    sudo kill "$(cat $SERVICE_PID)" 2>/dev/null || true
+    rm -f "$SERVICE_PID"
+    echo "[INFO] GPU auto-switch stopped."
+  else
+    echo "[WARN] No auto-switch daemon found."
+  fi
+}
+
+case "$1" in
+  --gpu-integrated) gpu_integrated ;;
+  --gpu-dedicated)  gpu_dedicated ;;
+  --gpu-list)       gpu_list ;;
+  --gpu-auto)       gpu_auto ;;
+  --gpu-stop)       gpu_stop ;;
+  --status)         gpu_status ;;
+  --help|"")        usage ;;
+  *) echo "Unknown option: $1"; usage; exit 1 ;;
+esac
+

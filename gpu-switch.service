@@ -1,0 +1,14 @@
+[Unit]
+Description=GPU Auto Switch Daemon
+After=multi-user.target
+
+[Service]
+ExecStart=/usr/local/bin/gpu-switch --gpu-auto
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/gpu-switch.log
+StandardError=append:/var/log/gpu-switch.log
+
+[Install]
+WantedBy=multi-user.target
+
