@@ -16,6 +16,7 @@ git clone https://github.com/xconnio/gpu-power-switch.git
 cd gpu-power-switch
 chmod +x install.sh
 ./install.sh
+```
 
 ## Example
 ```bash
@@ -25,3 +26,4 @@ sudo gpu-switch --gpu-auto      # start auto mode manually
 sudo gpu-switch --gpu-stop      # stop daemon
 sudo gpu-switch --status
 
+```
