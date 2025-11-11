@@ -1,4 +1,4 @@
-# gpu-power-switch
+# gpu-switch
 
 A lightweight Linux utility for hybrid GPU laptops (Intel + NVIDIA) that enables
 manual GPU control or automatic switching based on power state.
