@@ -13,7 +13,7 @@ manual GPU control or automatic switching based on power state.
 ## ⚙️ Installation
 ```bash
 git clone https://github.com/xconnio/gpu-power-switch.git
-cd gpu-power-switch
+cd gpu-switch
 chmod +x install.sh
 ./install.sh
 ```
