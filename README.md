@@ -20,10 +20,10 @@ chmod +x install.sh
 
 ## Example
 ```bash
-sudo gpu-switch --gpu-integrated
-sudo gpu-switch --gpu-dedicated
-sudo gpu-switch --gpu-auto      # start auto mode manually
-sudo gpu-switch --gpu-stop      # stop daemon
+sudo gpu-switch --integrated
+sudo gpu-switch --dedicated
+sudo gpu-switch --auto      # start auto mode manually
+sudo gpu-switch --stop      # stop daemon
 sudo gpu-switch --status
 
 ```
