@@ -13,11 +13,11 @@ ${YELLOW}Usage:${NC}
   sudo gpu-switch [option]
 
 ${YELLOW}Options:${NC}
-  --gpu-integrated     Switch to Intel GPU
-  --gpu-dedicated      Switch to NVIDIA GPU
-  --gpu-list           Show current and available GPUs
-  --gpu-auto           Start automatic switching daemon (AC <-> Battery)
-  --gpu-stop           Stop auto-switch daemon
+  --integrated     Switch to Intel GPU
+  --dedicated      Switch to NVIDIA GPU
+  --list           Show current and available GPUs
+  --auto           Start automatic switching daemon (AC <-> Battery)
+  --stop           Stop auto-switch daemon
   --status             Show GPU and daemon status
   --help               Show this help message
 EOF
@@ -101,11 +101,11 @@ gpu_stop() {
 }
 
 case "$1" in
-  --gpu-integrated) gpu_integrated ;;
-  --gpu-dedicated)  gpu_dedicated ;;
-  --gpu-list)       gpu_list ;;
-  --gpu-auto)       gpu_auto ;;
-  --gpu-stop)       gpu_stop ;;
+  --integrated) gpu_integrated ;;
+  --dedicated)  gpu_dedicated ;;
+  --list)       gpu_list ;;
+  --auto)       gpu_auto ;;
+  --stop)       gpu_stop ;;
   --status)         gpu_status ;;
   --help|"")        usage ;;
   *) echo "Unknown option: $1"; usage; exit 1 ;;
