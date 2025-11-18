@@ -21,7 +21,7 @@ echo "Service: enabled and running (auto GPU switching)"
 echo "Log file: /var/log/gpu-switch.log"
 echo
 echo "Commands:"
-echo "  sudo gpu-switch --gpu-integrated"
-echo "  sudo gpu-switch --gpu-dedicated"
+echo "  sudo gpu-switch --integrated"
+echo "  sudo gpu-switch --dedicated"
 echo "  sudo gpu-switch --status"
 
